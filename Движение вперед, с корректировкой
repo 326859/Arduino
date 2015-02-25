@@ -1,0 +1,53 @@
+void setup()
+{
+  Serial.begin(9600);
+  attachInterrupt(0, encoderRight, CHANGE);
+  attachInterrupt(1, encoderLeft, CHANGE);
+  pinMode(6, OUTPUT);
+  pinMode(5, OUTPUT);
+}
+
+int powerRight=150;
+int powerLeft=150;
+
+
+int obRight=0;
+void encoderRight()
+{
+  obRight++;
+}
+
+int obLeft=0;
+void encoderLeft()
+{
+  obLeft++;
+}
+
+void straight()  //выравнивание
+{
+ if (obLeft < obRight)
+ {
+   obLeft++;
+ }
+ 
+ if (obLeft > obRight)
+ {
+   obLeft--;
+ }
+}
+
+void loop()
+{
+  analogWrite(5, powerRight);
+  analogWrite(6, powerLeft);
+  delay(500);
+  
+  Serial.print(obLeft);
+  Serial.print("\t");
+  Serial.println(obRight);
+  
+  straight();
+  
+  obRight=0;
+  obLeft=0;
+}

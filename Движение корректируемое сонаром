@@ -1,0 +1,81 @@
+int GetDistance();
+void FastMowe();
+void SlowMowe(int);
+void Turn();
+void Mowe(int, int);
+
+void setup()
+{
+  Serial.begin(9600);
+  Serial1.begin(9600);
+  
+  int RightWheel = 5;
+  int LeftWheel = 6;
+  pinMode(RightWheel, OUTPUT);
+  pinMode(LeftWheel, OUTPUT);
+}
+
+void loop()
+{
+  long int Distance;
+  Distance = GetDistance();
+  
+  Serial.println(Distance);
+  //delay(100);
+  
+  if(Distance > 100)
+    FastMowe();
+  else if (Distance > 30)
+    SlowMowe(Distance);
+  else if (Distance > 0)
+    Turn();
+}
+
+int GetDistance()
+{
+  byte SignalOutput[4] = {0x22, 0x00, 0x00, 0x22};
+  for(int i = 0; i < 5; i++)
+    Serial1.write(SignalOutput[i]);
+  
+  delay(100);
+  
+  int SignalInput[4];
+  if (Serial1.available())
+    for(int i = 0; i < 5; i++)
+      SignalInput[i] = Serial1.read();
+  
+  long int Distance;
+  Distance = 0xff * SignalInput[1] + SignalInput[2];
+  
+  return Distance;
+}
+
+void FastMowe()
+{
+  int HugeSpeed = 255;
+  
+  Mowe(HugeSpeed, HugeSpeed);
+}
+
+void SlowMowe(int Distance)
+{
+  int Speed = 255 - 150  + Distance;
+  
+  Mowe(Speed, Speed);
+}
+
+void Turn()
+{
+  Mowe(200, 0);
+  delay(500);
+  Mowe(0, 0);
+}
+
+void Mowe(int Right, int Left)
+{
+  int RightWheel = 5;
+  int LeftWheel = 6;
+  
+  analogWrite(RightWheel, Right);
+  analogWrite(LeftWheel, Left);
+}
